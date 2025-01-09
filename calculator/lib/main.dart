@@ -26,8 +26,25 @@ class _CalculatorState extends State<Calculator> {
   int openBracketsCount = 0; // Счётчик открытых скобок
   bool isResultDisplayed = false; // Флаг, показывающий, отображается ли результат
 
+  // Карта для хранения состояний цвета кнопок
+  Map<String, bool> buttonStates = {};
+
   // Функция для обработки нажатий на кнопки
-  void buttonPressed(String value) {
+  void buttonPressed(String value) async {
+    // Установить состояние кнопки нажатой
+    setState(() {
+      buttonStates[value] = true;
+    });
+
+    // Подождать 1 секунду
+    await Future.delayed(Duration(milliseconds: 300));
+
+    // Вернуть кнопку в исходное состояние
+    setState(() {
+      buttonStates[value] = false;
+    });
+
+    // Логика калькулятора
     setState(() {
       if (value == "C") {
         // Очистить всё
@@ -156,16 +173,18 @@ class _CalculatorState extends State<Calculator> {
 
               return ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isOperator ? Colors.orange : Colors.blueAccent, // Цвет кнопки
-                  foregroundColor: Colors.white, // Цвет текста
+                  backgroundColor: buttonStates[buttonText] == true
+                      ? Colors.green // Цвет при нажатии
+                      : (isOperator ? Colors.orange : Colors.blueAccent),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Закруглённые углы
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () => buttonPressed(buttonText), // Обработка нажатия
+                onPressed: () => buttonPressed(buttonText),
                 child: Text(
                   buttonText,
-                  style: TextStyle(fontSize: 25), // Размер текста кнопки
+                  style: TextStyle(fontSize: 25),
                 ),
               );
             },
